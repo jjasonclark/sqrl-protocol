@@ -1,0 +1,49 @@
+{
+  "name": "sqrl-protocol",
+  "description": "SQRL authentication",
+  "license": "MIT",
+  "author": "Jason Clark <jason@jjasonclark.com> (https://jjasonclark.com)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jjasonclark/sqrl-protocol"
+  },
+  "version": "0.5.0",
+  "main": "src/index.js",
+  "files": [
+    "src/*.js"
+  ],
+  "scripts": {
+    "format": "prettier --write '{src/**/*.js,*.md,package.json,*.js}'",
+    "lint": "eslint src/**/*.js",
+    "test": "jest --collect-coverage"
+  },
+  "dependencies": {
+    "debug": ">=1",
+    "dlv": "~1",
+    "memory-sqrl-store": ">= 0.5.0",
+    "tweetnacl": "~1",
+    "universal-base64url": "~1"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-plugin-filenames": "^1.3.2",
+    "eslint-plugin-import": "^2.19.1",
+    "eslint-plugin-jest": "^23.3.0",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-test-filenames": "^0.0.1",
+    "jest": "^24.9.0",
+    "prettier": ">= 1"
+  },
+  "keywords": [
+    "authentication",
+    "crypto",
+    "ed25519",
+    "hmac",
+    "sqrl"
+  ],
+  "engines": {
+    "node": ">= 8"
+  }
+}
