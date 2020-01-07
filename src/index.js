@@ -92,15 +92,6 @@ const createSQRLHandler = options => {
 
   const updateNut = async nut => await opts.store.updateNut(nut);
 
-  const findFromNutParam = nutParam => {
-    debug('Nut lookup %s', nutParam);
-    const nutId = nutFormatter.parse(nutParam);
-    if (nutId) {
-      return retrieveNut(nutId);
-    }
-    return null;
-  };
-
   const createUrls = async (ip, userId = null) => {
     debug('Create urls %s', ip);
     const savedNut = await createNut({
@@ -130,7 +121,7 @@ const createSQRLHandler = options => {
   };
 
   const useCode = async (codeParam, ip) => {
-    const code  = codeFormatter.parse(codeParam);
+    const code = codeFormatter.parse(codeParam);
     if (!code) {
       return null;
     }
@@ -237,7 +228,9 @@ const createSQRLHandler = options => {
         return await createErrorReturn({ ver: 1, tif: 0x80 }, ip);
       }
 
-      const nut = await findFromNutParam(inputNut);
+      const nutId = nutFormatter.parse(inputNut);
+      debug('Nut lookup %s is %d', inputNut, nutId);
+      const nut = nutId ? await retrieveNut(nutId) : null;
       if (
         // must have nut
         !nut ||
