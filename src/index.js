@@ -18,6 +18,36 @@ const protocolVersion = '1';
 const exemptPorts = [80, 443, '80', '443', ''];
 const defaultNutTimeout = 60 * 60 * 1000; // 1 hour in ms
 
+const decodeRequest = body => {
+  try {
+    const request = querystring.decode(body);
+    const client = decodeSQRLPack(base64url.decode(get(request, 'client', '')));
+    debug('Decoded inputs: %O', { request, client });
+    if (
+      !client ||
+      client.ver !== protocolVersion ||
+      !client.idk ||
+      client.idk.length !== idkLength ||
+      !client.opt ||
+      !client.cmd ||
+      client.cmd.length > maxCmdLength ||
+      !request ||
+      !request.server ||
+      !request.ids ||
+      // valid signature
+      !isValidSignature(request, request.ids, client.idk) ||
+      // valid previous signature
+      (client.pidk && !isValidSignature(request, request.pids, client.pidk))
+    ) {
+      return { client, request };
+    }
+  } catch (ex) {
+    // do nothing
+  }
+  debug('Invalid inputs');
+  return {};
+};
+
 const convertToBody = clientReturn => {
   clientReturn.tif = clientReturn.tif.toString(16);
   const rawReturn = encodeSQRLPack(clientReturn);
@@ -200,31 +230,14 @@ const createSQRLHandler = options => {
         return await createErrorReturn({ ver: 1, tif: 0x80 }, ip);
       }
 
-      const request = querystring.decode(body);
-      const client = decodeSQRLPack(
-        base64url.decode(get(request, 'client', ''))
-      );
-
       // validate decoded params
+      const { client, request } = decodeRequest(body);
       if (
         !client ||
-        client.ver !== protocolVersion ||
-        !client.idk ||
-        client.idk.length !== idkLength ||
-        !client.opt ||
-        !client.cmd ||
-        client.cmd.length > maxCmdLength ||
         !request ||
-        !request.server ||
-        !request.ids ||
         // server should include nut
-        request.server.includes(querystring.encode({ nut: inputNut })) ||
-        // valid signature
-        !isValidSignature(request, request.ids, client.idk) ||
-        // valid previous signature
-        (client.pidk && !isValidSignature(request, request.pids, client.pidk))
+        request.server.includes(querystring.encode({ nut: inputNut }))
       ) {
-        debug('Invalid decoded inputs: %O', { request, client });
         return await createErrorReturn({ ver: 1, tif: 0x80 }, ip);
       }
 
