@@ -43,7 +43,11 @@ const defaultOptions = base => {
     authUrl: urlJoin(base.toString(), '/authenticate'),
     x: base.pathname.length - (base.pathname.endsWith('/') ? 1 : 0),
     cpsBaseUrl: 'http://localhost:25519',
-    blowfishSecrets: {
+    nutSecrets: {
+      key: '',
+      iv: ''
+    },
+    codeSecrets: {
       key: '',
       iv: ''
     },
@@ -65,7 +69,8 @@ const createSQRLHandler = options => {
     Object.assign({}, options),
     defaultOptions(apiBaseUrl)
   );
-  const nonceFormatter = new NonceFormatter(opts.blowfishSecrets);
+  const nutFormatter = new NonceFormatter(opts.nutSecrets);
+  const codeFormatter = new NonceFormatter(opts.codeSecrets);
   const identityProvider = new IdentityProvider(opts.store);
 
   // TODO: validate required options are set
@@ -89,7 +94,7 @@ const createSQRLHandler = options => {
 
   const findFromNutParam = nutParam => {
     debug('Nut lookup %s', nutParam);
-    const nutId = nonceFormatter.parseNutParam(nutParam);
+    const nutId = nutFormatter.parse(nutParam);
     if (nutId) {
       return retrieveNut(nutId);
     }
@@ -105,7 +110,7 @@ const createSQRLHandler = options => {
       hmac: null
     });
     debug('Saved nut %O', savedNut);
-    const urlReturn = { nut: nonceFormatter.formatReturnNut(savedNut) };
+    const urlReturn = { nut: nutFormatter.format(savedNut) };
     if (opts.x > 0) {
       urlReturn.x = opts.x;
     }
@@ -118,29 +123,20 @@ const createSQRLHandler = options => {
       cps: urlJoin(opts.cpsBaseUrl, `/${base64url.encode(cpsAuthUrl)}`),
       login: `${opts.sqrlProtoUrl}?${querystring.encode(urlReturn)}`,
       poll: `${opts.authUrl}?${querystring.encode({
-        code: nonceFormatter.formatOffCode(savedNut)
+        code: codeFormatter.format(savedNut)
       })}`,
       success: opts.successUrl
     };
   };
 
   const useCode = async (codeParam, ip) => {
-    const { code, type } = nonceFormatter.parseCodeParam(codeParam);
-    if (!code || !type) {
+    const code  = codeFormatter.parse(codeParam);
+    if (!code) {
       return null;
     }
-    const nut = await retrieveNut(code);
+    const nut = await retrieveNut(code.toString());
     // nut must match ip and be identified and not issued
-    // plus cps type must be follow up nut
-    // plus off type must be initial nut
-    if (
-      nut &&
-      ((type === 'off-' && !nut.initial) || (type === 'cps-' && nut.initial)) &&
-      nut.ip === ip &&
-      nut.identified &&
-      nut.user_id &&
-      !nut.issued
-    ) {
+    if (nut && nut.ip === ip && nut.identified && nut.user_id && !nut.issued) {
       nut.issued = new Date().toISOString();
       await updateNut(nut);
       return retrieveUser(nut.user_id);
@@ -155,7 +151,7 @@ const createSQRLHandler = options => {
       user_id: existingNut.user_id,
       hmac: null
     });
-    const nut = nonceFormatter.formatReturnNut(created);
+    const nut = nutFormatter.format(created);
     clientReturn.nut = nut;
     clientReturn.qry = `${opts.sqrlUrl}?${querystring.encode({ nut })}`;
     debug('Return values: %O', { clientReturn, created });
@@ -172,7 +168,7 @@ const createSQRLHandler = options => {
       user_id: null,
       hmac: null
     });
-    const nut = nonceFormatter.formatReturnNut(created);
+    const nut = nutFormatter.format(created);
     clientReturn.nut = nut;
     clientReturn.qry = `${opts.sqrlUrl}?${querystring.encode({ nut })}`;
     debug('Return values: %O', { clientReturn, created });
@@ -186,7 +182,7 @@ const createSQRLHandler = options => {
       // CPS log in
       loginNut = nut;
       clientReturn.url = `${opts.authUrl}?${querystring.encode({
-        code: nonceFormatter.formatCpsCode(nut)
+        code: codeFormatter.format(nut)
       })}`;
     } else {
       // off device login

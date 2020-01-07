@@ -12,7 +12,11 @@ test('creates urls', async () => {
     baseUrl: 'https://example.com',
     store: new MemorySqrlStore(),
     hmacSecret: 'mysuperSecret!',
-    blowfishSecrets: {
+    codeSecrets: {
+      key: 'abcdefghijklmnopqrst',
+      iv: '12345678'
+    },
+    nutSecrets: {
       key: 'abcdefghijklmnopqrst',
       iv: '12345678'
     }
@@ -22,7 +26,7 @@ test('creates urls', async () => {
   expect(urls).toBeDefined();
   expect(urls.login).toEqual('sqrl://example.com/sqrl?nut=qaUn_E_IrC4');
   expect(urls.poll).toEqual(
-    'https://example.com/authenticate?code=TKUbaas9MTYtJAvkWENuGg'
+    'https://example.com/authenticate?code=qaUn_E_IrC4'
   );
   expect(urls.success).toEqual('https://example.com/loggedin');
   expect(urls.cps).toEqual(
@@ -36,7 +40,11 @@ test('creates user', async () => {
     baseUrl: 'https://example.com',
     store,
     hmacSecret: 'mysuperSecret!',
-    blowfishSecrets: {
+    codeSecrets: {
+      key: 'abcdefghijklmnopqrst',
+      iv: '12345678'
+    },
+    nutSecrets: {
       key: 'abcdefghijklmnopqrst',
       iv: '12345678'
     }
@@ -53,7 +61,11 @@ test('uses code', async () => {
     baseUrl: 'https://example.com',
     store,
     hmacSecret: 'mysuperSecret!',
-    blowfishSecrets: {
+    codeSecrets: {
+      key: 'abcdefghijklmnopqrst',
+      iv: '12345678'
+    },
+    nutSecrets: {
       key: 'abcdefghijklmnopqrst',
       iv: '12345678'
     }
@@ -62,15 +74,11 @@ test('uses code', async () => {
   const user = await sqrlHandler.createUser();
   expect(user).toBeTruthy();
   expect(user.id).toEqual(1);
-  const urls = await sqrlHandler.createUrls('127.0.0.1');
+  await sqrlHandler.createUrls('127.0.0.1', user.id);
   store.nuts[1].identified = new Date().toISOString();
-  store.nuts[1].user_id = 1;
-  const parsed = new url.URL(urls.poll);
-  const code = parsed.searchParams.get('code');
-  expect(code).toBeTruthy();
-  const returnUser = await sqrlHandler.useCode(code, '127.0.0.1');
+  const returnUser = await sqrlHandler.useCode('qaUn_E_IrC4', '127.0.0.1');
   expect(returnUser).toBeTruthy();
-  expect(returnUser.id).toEqual(1);
+  expect(returnUser.id).toEqual(user.id);
 });
 
 test('handles missing body', async () => {
@@ -79,7 +87,11 @@ test('handles missing body', async () => {
     baseUrl: 'https://example.com',
     store,
     hmacSecret: 'mysuperSecret!',
-    blowfishSecrets: {
+    codeSecrets: {
+      key: 'abcdefghijklmnopqrst',
+      iv: '12345678'
+    },
+    nutSecrets: {
       key: 'abcdefghijklmnopqrst',
       iv: '12345678'
     }

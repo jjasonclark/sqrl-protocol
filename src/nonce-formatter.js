@@ -4,8 +4,6 @@ const base64url = require('universal-base64url');
 const alg = 'bf-cbc';
 const Uint32Size = 4;
 
-const isNullOrEmpty = what => what === null || what === '';
-
 const encrypt = (message, secrets) => {
   try {
     const cipher = crypto.createCipheriv(alg, secrets.key, secrets.iv);
@@ -38,42 +36,16 @@ class NonceFormatter {
     this.secrets = secrets;
   }
 
-  _encode(what) {
-    return encrypt(what, this.secrets);
+  format(nut) {
+    return encrypt(intToBuffer(nut), this.secrets);
   }
 
-  _decode(what) {
-    return decrypt(what, this.secrets);
-  }
-
-  formatCpsCode(nut) {
-    return this._encode(Buffer.concat([Buffer.from('cps-'), intToBuffer(nut)]));
-  }
-
-  formatOffCode(nut) {
-    return this._encode(Buffer.concat([Buffer.from('off-'), intToBuffer(nut)]));
-  }
-
-  formatReturnNut(nut) {
-    return this._encode(intToBuffer(nut));
-  }
-
-  parseNutParam(nutParam) {
-    const nut = this._decode(nutParam);
+  parse(nutParam) {
+    const nut = decrypt(nutParam, this.secrets);
     if (nut) {
       return nut.readUInt32BE(0);
     }
     return null;
-  }
-
-  parseCodeParam(codeParam) {
-    const decoded = this._decode(codeParam);
-    const type = decoded.slice(0, Uint32Size).toString();
-    const code = decoded.readUInt32BE(Uint32Size).toString();
-    if (isNullOrEmpty(code) || isNullOrEmpty(type)) {
-      return {};
-    }
-    return { code, type };
   }
 }
 
