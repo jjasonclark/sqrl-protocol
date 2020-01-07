@@ -1,6 +1,5 @@
 const { createSQRLHandler } = require('./');
 const MemorySqrlStore = require('memory-sqrl-store');
-const url = require('url');
 
 test('creates object', () => {
   const sqrlHandler = createSQRLHandler({ baseUrl: 'https://example.com' });
