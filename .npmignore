@@ -1,2 +1,2 @@
 yarn-error.log
-src/*.test.js
+lib/*.test.js

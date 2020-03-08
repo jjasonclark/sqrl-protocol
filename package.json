@@ -7,25 +7,27 @@
     "type": "git",
     "url": "https://github.com/jjasonclark/sqrl-protocol"
   },
-  "version": "0.6.0",
-  "main": "src/index.js",
+  "version": "0.7.0",
+  "main": "index.js",
   "files": [
     "CODE_OF_CONDUCT.md",
-    "src/hmac.js",
-    "src/identity-provider.js",
-    "src/nonce-formatter.js",
-    "src/signature.js",
-    "src/sqrl-pack.js"
+    "lib/constants.js",
+    "lib/decode-request.js",
+    "lib/hmac.js",
+    "lib/identity-provider.js",
+    "lib/nonce-formatter.js",
+    "lib/signature.js",
+    "lib/sqrl-pack.js",
+    "lib/sqrl-protocol.js"
   ],
   "scripts": {
-    "format": "prettier --write '{src/**/*.js,*.md,package.json,*.js}'",
-    "lint": "eslint src/**/*.js",
+    "format": "prettier --write '{lib/**/*.js,*.md,package.json,*.js}'",
+    "lint": "eslint lib/**/*.js index.js",
     "test": "jest --collect-coverage"
   },
   "dependencies": {
     "debug": ">=1",
     "dlv": "~1",
-    "memory-sqrl-store": ">= 0.5.0",
     "tweetnacl": "~1",
     "universal-base64url": "~1"
   },
@@ -39,6 +41,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-test-filenames": "^0.0.1",
     "jest": "^24.9.0",
+    "memory-sqrl-store": ">= 0.5.0",
     "prettier": ">= 1"
   },
   "keywords": [
