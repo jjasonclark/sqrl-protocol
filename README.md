@@ -13,14 +13,23 @@ $ npm install sqrl-protocol
 ## Usage
 
 ```javascript
-const sqrlProtocol = require('sqrl-protocol')({ /* config */ });
+const sqrlProtocol = require('sqrl-protocol')({
+  /* config */
+});
 
 // Start a login
 const nut = await sqrlProtocol.createNut(req.connection.remoteAddress);
 // Process a login
-const sqrlResult = await sqrlProtocol.process(req.connection.remoteAddress, req.query.nut, req.body);
+const sqrlResult = await sqrlProtocol.process(
+  req.connection.remoteAddress,
+  req.query.nut,
+  req.body
+);
 // Finish a login
-const user = await sqrlProtocol.useCode(req.connection.remoteAddress, req.query.code);
+const user = await sqrlProtocol.useCode(
+  req.connection.remoteAddress,
+  req.query.code
+);
 ```
 
 ## License
