@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.8.0
+
+- Stop using Rollup
+- Change id props to strings
+- Extract crypto functions to a single file
+- Add more debug messages
+
 ## v0.7.1
 
 - Extract process message file

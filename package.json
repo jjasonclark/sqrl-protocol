@@ -1,6 +1,6 @@
 {
   "name": "sqrl-protocol",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "SQRL authentication",
   "license": "MIT",
   "engines": {
@@ -18,13 +18,12 @@
     "hmac",
     "sqrl"
   ],
-  "main": "dist/index.js",
+  "main": "index.js",
   "files": [
     "CODE_OF_CONDUCT.md",
-    "dist/index.js"
+    "lib/*.js"
   ],
   "scripts": {
-    "build": "rollup -c",
     "format": "prettier --write '{lib/**/*.js,*.md,package.json,*.js}'",
     "lint": "eslint lib/**/*.js index.js",
     "test": "jest --collect-coverage"
@@ -36,8 +35,6 @@
     "universal-base64url": "~1"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "~11",
-    "@rollup/plugin-node-resolve": "~7",
     "eslint": "~6",
     "eslint-config-prettier": "~6",
     "eslint-plugin-filenames": "~1",
@@ -48,7 +45,6 @@
     "eslint-plugin-test-filenames": "~0",
     "jest": "~25",
     "memory-sqrl-store": ">= 0.5.0",
-    "prettier": ">= 1",
-    "rollup": "~2"
+    "prettier": ">= 1"
   }
 }
